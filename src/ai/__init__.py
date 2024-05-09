@@ -9,5 +9,6 @@ import ai.functions
 import ai.layers
 from ai.models import Model
 from ai.layers import Layer
+from ai.dataloaders import DataLoader
 
 setup_variable()

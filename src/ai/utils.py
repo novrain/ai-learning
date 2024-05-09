@@ -1,6 +1,10 @@
 import numpy as np
 import os
 import subprocess
+import urllib.request
+import ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 def _dot_var(v, verbose=False):
@@ -137,3 +141,43 @@ def pair(x):
         return x
     else:
         raise ValueError
+
+
+cache_dir = os.path.join(os.path.curdir, ".ai")
+
+
+def show_progress(block_num, block_size, total_size):
+    bar_template = "\r[{}] {:.2f}%"
+
+    downloaded = block_num * block_size
+    p = downloaded / total_size * 100
+    i = int(downloaded / total_size * 30)
+    if p >= 100.0:
+        p = 100.0
+    if i >= 30:
+        i = 30
+    bar = "#" * i + "." * (30 - i)
+    print(bar_template.format(bar, p), end="")
+
+
+def get_file(url, file_name=None):
+    if file_name is None:
+        file_name = url[url.rfind("/") + 1 :]
+    file_path = os.path.join(cache_dir, file_name)
+
+    if not os.path.exists(cache_dir):
+        os.mkdir(cache_dir)
+
+    if os.path.exists(file_path):
+        return file_path
+
+    print("Downloading: " + file_name)
+    try:
+        urllib.request.urlretrieve(url, file_path, show_progress)
+    except (Exception, KeyboardInterrupt) as e:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise
+    print(" Done")
+
+    return file_path
