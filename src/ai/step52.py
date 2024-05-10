@@ -1,5 +1,6 @@
 import ai
 from ai import optimizers
+import ai.cuda
 from ai.dataloaders import DataLoader
 import ai.datasets
 import matplotlib.pyplot as plt
@@ -32,6 +33,10 @@ test_loader = DataLoader(test_set, batch_size, shuffle=False)
 
 model = MLP((hidden_size, hidden_size, 10), activation=F.relu)
 optimizer = optimizers.Adam().setup(model)
+
+if ai.cuda.gpu_enable:
+    train_loader.to_gpu()
+    model.to_gpu()
 
 for epoch in range(max_epoch):
     sum_loss, sum_acc = 0, 0
